@@ -7,6 +7,7 @@ use std::{collections::HashMap, default, fs, io::*, vec};
 
 use actix_web::{middleware, web, App, HttpResponse, HttpServer, Responder, Result};
 use askama::Template;
+use std::vec::Vec;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -23,18 +24,44 @@ struct NodeFragment{
     r#type: String
 }
 
+trait ConvertVecNode {
+    fn convert(self) -> Vec<NodeFragment>;
+}
+
+impl ConvertVecNode for Vec<Node> {
+    fn convert(self) -> Vec<NodeFragment> {
+        self.into_iter().map(NodeFragment::from).collect()
+    }
+}
+
+impl From<Node> for NodeFragment{
+    fn from(value: Node) -> Self {
+        NodeFragment{ char: value.char_name, name: value.node_name, cost: value.cp_cost, r#type: value.node_type.to_string() }
+    }
+}
+
+// impl From<Vec<NodeTest>> for Vec<NodeFragment>{
+//     fn from(value: Vec<NodeTest>) -> Self {
+//         NodeFragment{ char: value.char_name, name: value.node_name, cost: value.cp_cost, r#type: value.node_type.to_string() }
+//         vec![]
+//     }
+// }
+
 async fn index(query: web::Query<HashMap<String, String>>) -> Result<impl Responder> {
     let crystarium = read_crystal_wdb("C:\\Users\\adria\\Documents\\crystal_fang.wdb").expect("No Crystarium created");
     let mut nodes: Vec<NodeFragment> = vec![];
     
-    let _ = crystarium.nodes
-        .iter()
-        .for_each(|node| nodes.push(NodeFragment{
-                                            char: node.char_name.clone(),
-                                            name: node.node_name.clone(), 
-                                            cost: node.cp_cost, 
-                                            r#type: node.node_type.to_string()
-                                        }));
+    nodes = crystarium.nodes.convert();
+
+    // let _ = crystarium.nodes
+    //     .iter()
+    //     .for_each(|node| nodes.push(NodeFragment::from(node.clone())
+    //                                     // NodeFragment{
+    //                                         // char: node.char_name.clone(),
+    //                                         // name: node.node_name.clone(), 
+    //                                         // cost: node.cp_cost, 
+    //                                         // r#type: node.node_type.to_string()}
+    //                                     ));
 
 
     Ok(Html(Index{nodes: nodes}.render().unwrap()))
