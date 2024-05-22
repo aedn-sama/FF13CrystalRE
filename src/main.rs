@@ -48,7 +48,7 @@ impl From<Node> for NodeFragment{
 // }
 
 async fn index(query: web::Query<HashMap<String, String>>) -> Result<impl Responder> {
-    let crystarium = read_crystal_wdb("C:\\Users\\adria\\Documents\\crystal_fang.wdb").expect("No Crystarium created");
+    let crystarium = Crystarium::default();
     let mut nodes: Vec<NodeFragment> = vec![];
     
     nodes = crystarium.nodes.convert();
@@ -71,8 +71,6 @@ async fn index(query: web::Query<HashMap<String, String>>) -> Result<impl Respon
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    //Darf man nicht in Kombi mit wasm machen, WebAssembly mit System native Funktionen.
-    let crystarium = read_crystal_wdb("C:\\Users\\adria\\Documents\\crystal_fang.wdb").expect("No Crystarium created");
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     log::info!("starting HTTP server at http://localhost:8080");
