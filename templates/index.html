@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8" />
   <title>Crystal Editing</title>
-  <link rel="stylesheet" href="assets/styles.css"> 
+  <link href="assets/tailwind.css" rel="stylesheet" />
 </head>
-<body>
-    <table class="steelBlueCols center">
-    <thead>
-      <tr>
-        <th>Character</th>
-        <th>Name</th>
-        <th>Cost</th>
-        <th>Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for node in nodes %}
-        <tr>
-          <td>{{ node.char }}</td>
-          <td>{{ node.name }}</td>
-          <td>{{ node.cost }}</td>
-          <td>{{ node.type }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+<body class="bg-gray-900">
+  <div class="grid h-screen place-content-center">
+    <div class="text-center">
+      <p class="text-white text-xl">Final Fantasy XIII Crystal:RE</p>
+      <button class="rounded-full bg-blue-500 px-4 py-2 text-white" onclick="openFileDialog()">Upload db/crystal_*.wdb</button>
+    </div>
+  </div>
 
 </body>
+
+
+</body>
+<script>
+  function openFileDialog() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = handleFileSelection;
+    input.click();
+  }
+
+  function handleFileSelection(event) {
+    const selectedFile = event.target.files[0];
+    // Do something with the selected file (e.g., read its content)
+  }
+</script>
+
 </html>
