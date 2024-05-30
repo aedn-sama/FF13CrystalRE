@@ -1,5 +1,5 @@
 use byteorder::{BigEndian, ByteOrder};
-use std::{ fmt::{self, format}, io::{self, BufRead, Read, Seek}, vec };
+use std::{ fmt::{self}, io::{self, BufRead, Read, Seek}, vec };
 
 // WDB
 //     • int: CP cost
@@ -109,7 +109,7 @@ impl Entry {
         //Skip 8 bytes
         Self::load_part(reader, 8);
 
-        for n in 0..count {
+        for _ in 0..count {
             let name = Self::load_string_eof(reader);
             let mut padding_size = STRINGSIZE - name.len();
             let mut padding: Vec<u8>;
@@ -144,7 +144,7 @@ impl ReadUtilities for FileStructure {}
 
 impl FileStructure {
     pub fn load_version<T: BufRead + Seek>(reader: &mut T, entries: &Vec<Entry>) -> i32 {
-        let entry = entries
+        let _ = entries
             .iter()
             .find(|entry| entry.name == "!!version\0")
             .expect("version not found");
@@ -281,7 +281,7 @@ impl Crystarium {
         for entry in fstruct.entries.iter().filter(|e: &&Entry| !e.name.starts_with('!')){
 
             let cp_cost = BigEndian::read_i32(&Self::load_part(reader, 4));
-            let ability = BigEndian::read_i32(&Self::load_part(reader, 4));
+            let _ = BigEndian::read_i32(&Self::load_part(reader, 4));
             let node_value: i16 = BigEndian::read_i16(&Self::load_part(reader, 2));
             let mut node_type_vec: Vec<u8> = Vec::new();
             io::copy(&mut reader.by_ref().take(1), &mut node_type_vec).unwrap();

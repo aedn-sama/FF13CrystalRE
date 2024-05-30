@@ -2,10 +2,8 @@ pub mod crystal;
 use actix_files::Files;
 use actix_web_lab::respond::Html;
 use crystal::{Crystarium, FileStructure, Node};
-use log::info;
-use std::{collections::HashMap, default, fs, io::*, vec};
-
-use actix_web::{middleware, web, App, HttpResponse, HttpServer, Responder, Result};
+use std::{collections::HashMap, fs::{self}, io::*, vec};
+use actix_web::{middleware, web::{self, resource}, App, HttpResponse, HttpServer, Responder, Result};
 use askama::Template;
 use std::vec::Vec;
 
@@ -40,54 +38,43 @@ impl From<Node> for NodeFragment{
     }
 }
 
-// impl From<Vec<NodeTest>> for Vec<NodeFragment>{
-//     fn from(value: Vec<NodeTest>) -> Self {
-//         NodeFragment{ char: value.char_name, name: value.node_name, cost: value.cp_cost, r#type: value.node_type.to_string() }
-//         vec![]
-//     }
-// }
-
-async fn index(query: web::Query<HashMap<String, String>>) -> Result<impl Responder> {
+async fn index(_: web::Query<HashMap<String, String>>) -> Result<impl Responder> {
     let crystarium = Crystarium::default();
     let mut nodes: Vec<NodeFragment> = vec![];
     
+    log::info!("got Index");
+
     nodes = crystarium.nodes.convert();
-
-    // let _ = crystarium.nodes
-    //     .iter()
-    //     .for_each(|node| nodes.push(NodeFragment::from(node.clone())
-    //                                     // NodeFragment{
-    //                                         // char: node.char_name.clone(),
-    //                                         // name: node.node_name.clone(), 
-    //                                         // cost: node.cp_cost, 
-    //                                         // r#type: node.node_type.to_string()}
-    //                                     ));
-
 
     Ok(Html(Index{nodes: nodes}.render().unwrap()))
 }
 
-
+async fn upload(payload: web::Payload) -> Result<impl Responder>{
+    log::info!("got Upload");
+    println!("got Upload");
+    read_crystal_wdb(Vec::from(payload.to_bytes().await.unwrap())).unwrap();
+    Ok(HttpResponse::Ok().finish())
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
-    log::info!("starting HTTP server at http://localhost:8080");
+    log::info!("starting HTTP server at http://127.0.0.1:8000");
 
     HttpServer::new( move || {
             App::new()
                 .wrap(middleware::Logger::default())
-                .service(web::resource("/").route(web::get().to(index)))
+                .service(resource("/upload").route(web::post().to(upload)))
+                .service(resource("/").route(web::get().to(index)))
                 .service(Files::new("/assets", "./templates/assets"))
         })
         .bind(("127.0.0.1", 8000))?
         .run()
         .await
-    //println!("{:?}", read_crystal_wdb("C:\\Users\\adria\\Documents\\crystal_fang.wdb"));
 }
 
-fn read_crystal_wdb(path: &str) -> Result<Crystarium> {
+fn read_crystal_wdb_with_file(path: &str) -> Result<Crystarium> {
     let file_h = fs::File::open(path)?;
 
     //Buffered Reader for file
@@ -102,9 +89,22 @@ fn read_crystal_wdb(path: &str) -> Result<Crystarium> {
     Ok(crystarium)
 }
 
+fn read_crystal_wdb(data: Vec<u8> ) -> Result<Crystarium> {
+    //Buffered Reader for file
+    let mut b_cursor = Cursor::new(data);
+
+    //File Structure Mapping
+    let fstruct = FileStructure::load(&mut b_cursor);
+
+    //Using the file structure to get the data for crystal infos.
+    let crystarium = Crystarium::create(&mut b_cursor, &fstruct);
+
+    Ok(crystarium)
+}
+
+
+
 #[test]
 fn test_read_crystal() {
-    if read_crystal_wdb("C:\\Users\\adria\\Documents\\crystal_fang.wdb").is_ok(){
 
-    }
 }

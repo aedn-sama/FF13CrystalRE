@@ -5,13 +5,27 @@
   <meta charset="utf-8" />
   <title>Crystal Editing</title>
   <link href="assets/tailwind.css" rel="stylesheet" />
+  <script src="https://unpkg.com/htmx.org"></script>
 </head>
 
 <body class="bg-gray-900">
   <div class="grid h-screen place-content-center">
     <div class="text-center">
       <p class="text-white text-xl">Final Fantasy XIII Crystal:RE</p>
-      <button class="rounded-full bg-blue-500 px-4 py-2 text-white" onclick="openFileDialog()">Upload db/crystal_*.wdb</button>
+      <form id='form' hx-encoding='multipart/form-data' hx-post='/upload'>
+        <input type='file' name='file'/>
+        <button>
+            Upload
+        </button>
+       </form>
+      
+      <!--<form id="fileUpload" hx-encoding='multipart/form-data' hx-post='/upload'>
+        <label class="rounded-full bg-blue-500 px-4 py-2 text-white">Browse
+          <input type="file" style="display: none;" class="rounded-full bg-blue-500 px-4 py-2 text-white" />
+        </label>
+        <button class="rounded-full bg-blue-500 px-4 py-2 text-white">Upload db/crystal_*.wdb</button>
+      </form>
+      <button class="rounded-full bg-blue-500 px-4 py-2 text-white" hx-post='/upload' hx-encoding="multipart/form-data"">Upload db/crystal_*.wdb</button>-->
     </div>
   </div>
 
@@ -28,8 +42,9 @@
   }
 
   function handleFileSelection(event) {
+    //Get file from filedialog
     const selectedFile = event.target.files[0];
-    // Do something with the selected file (e.g., read its content)
+
   }
 </script>
 
