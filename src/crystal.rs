@@ -34,7 +34,7 @@ pub struct FileStructure {
     version: i32,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub enum NodeType {
     #[default]
     HP,
@@ -59,7 +59,7 @@ pub struct Node {
     pub role: u8,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Crystarium {
     pub nodes: Vec<Node>,
 }
