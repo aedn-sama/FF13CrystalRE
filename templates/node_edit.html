@@ -6,26 +6,27 @@
   <link href="assets/tailwind.css" rel="stylesheet" />
 </head>
 <body>
-    <table class="bg-blue-500 px-4 py-2 text-white center">
-    <thead>
-      <tr>
-        <th>Character</th>
-        <th>Name</th>
-        <th>Cost</th>
-        <th>Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for node in nodes %}
+  <div class="flex justify-center flex-col">
+    <table class="bg-blue-500 px-4 py-2 text-white">
+      <thead>
         <tr>
-          <td>{{ node.char }}</td>
-          <td>{{ node.name }}</td>
-          <td>{{ node.cost }}</td>
-          <td>{{ node.type }}</td>
+          <th>Character</th>
+          <th>Name</th>
+          <th>Cost</th>
+          <th>Type</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
+      </thead>
+      <tbody>
+        {% for node in nodes %}
+          <tr>
+            <td>{{ node.char }}</td>
+            <td>{{ node.name }}</td>
+            <td>{{ node.cost }}</td>
+            <td>{{ node.type }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>

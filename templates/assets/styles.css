@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.bg-transparent {
+    background-color: transparent;
+  }
+
+  input[type=file]{
+    display: none;
+    visibility: hidden;
+  }
+
+  td{
+    text-align: center;
+    vertical-align: middle;
+  }

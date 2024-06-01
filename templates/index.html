@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-<head>
+<head lang="en">
   <meta charset="utf-8">
   <title>Crystal Editing</title>
   <link href="assets/tailwind.css" rel="stylesheet">
@@ -12,9 +12,11 @@
   <div id="fullscreen" class="grid h-screen place-content-center">
     <div class="text-center">
       <p class="text-white text-xl">Final Fantasy XIII Crystal: RE</p>
+      <br>
       <form id="form" hx-encoding="multipart/form-data" hx-post="/upload" hx-target="#fullscreen" hx-swap="outerHTML">
-        <input type="file" name="file">
-        <button class="to-blue-500 text-white">
+        <label class="bg-transparent hover:bg-red-500 font-semibold py-2 px-4 border border-red-500 hover:border-transparent rounded text-white" for="filewpd">Select WPD File</label>
+        <input id="filewpd" type="file" name="file"/>
+        <button class="bg-transparent hover:bg-blue-500 font-semibold py-2 px-4 border border-blue-500 hover:border-transparent rounded text-white">
             Upload
         </button>
        </form>

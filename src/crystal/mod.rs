@@ -1,5 +1,5 @@
 use byteorder::{BigEndian, ByteOrder};
-use std::{ fmt::{self}, io::{self, BufRead, Read, Seek}, vec };
+use std::{ fmt, fs, io::{self, BufRead, BufReader, Cursor, Read, Seek}, vec };
 
 // WDB
 //     • int: CP cost
@@ -250,17 +250,6 @@ impl Node {
             role: role,
         };
     }
-
-
-    // pub fn node_html(&self) -> Html {
-    //     html! {
-    //         <div>
-    //         <td>{&self.node_name}</td>
-    //         <td>{&self.cp_cost}</td>
-    //         <td>{format!("{}",&self.node_type)}</td>
-    //         </div>
-    //     }
-    // }
 }
 
 //Empty implementation for including functions.
@@ -326,4 +315,32 @@ impl Crystarium {
 
         crystarium
     }
+}
+
+pub fn read_crystal_wdb_with_file(path: &str) -> Result<Crystarium, &'static str> {
+    let file_h = fs::File::open(path).unwrap();
+
+    //Buffered Reader for file
+    let mut b_reader = BufReader::new(file_h);
+
+    //File Structure Mapping
+    let fstruct = FileStructure::load(&mut b_reader);
+
+    //Using the file structure to get the data for crystal infos.
+    let crystarium = Crystarium::create(&mut b_reader, &fstruct);
+
+    Ok(crystarium)
+}
+
+pub fn read_crystal_wdb(data: Vec<u8>) -> Result<Crystarium, &'static str> {
+    //Buffered Reader for file
+    let mut b_cursor = Cursor::new(data);
+
+    //File Structure Mapping
+    let fstruct = FileStructure::load(&mut b_cursor);
+
+    //Using the file structure to get the data for crystal infos.
+    let crystarium = Crystarium::create(&mut b_cursor, &fstruct);
+
+    Ok(crystarium)
 }
