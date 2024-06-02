@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8" />
+
+<head lang="en">
+  <meta charset="utf-8">
   <title>Crystal Editing</title>
-  <link href="assets/tailwind.css" rel="stylesheet" />
+  <link href="assets/tailwind.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org"></script>
 </head>
-<body>
+
+<body class="bg-gray-900">
   <div class="flex justify-center flex-col">
     <table class="bg-blue-500 px-4 py-2 text-white">
       <thead>
@@ -18,15 +21,52 @@
       </thead>
       <tbody>
         {% for node in nodes %}
-          <tr>
-            <td>{{ node.char }}</td>
-            <td>{{ node.name }}</td>
-            <td>{{ node.cost }}</td>
-            <td>{{ node.type }}</td>
-          </tr>
+        <tr>
+          <td>{{ node.char }}</td>
+          <td>{{ node.name }}</td>
+          <td>{{ node.cost }}</td>
+          <td>{{ node.type }}</td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+  <div class="flex justify-center flex-row py-5">
+    <button
+      class="arrow left bg-transparent hover:bg-blue-500 font-semibold border-blue-500 hover:border-transparent rounded text-white"
+      id="btn_back" hx-on:click="on_click_back()">
+    </button>
+    <button
+      class="arrow right bg-transparent hover:bg-blue-500 font-semibold border-blue-500 hover:border-transparent rounded text-white"
+      id="btn_next" hx-on:click="on_click_next()"> 
+      <!-- ToDo: Man könnte hx-get="/node_viewer?page={{page}}" machen mit Rust HTMX -->
+  </button>
+  </div>
+  <script>
+    const querystring = window.location.search;
+    const params = new URLSearchParams(querystring);
+
+    var page = parseInt(params.get('page'));
+
+    function on_click_next() {
+      debugger;
+      if (isNaN(page)) {
+        page = 1;
+      }
+      let page_url = '/node_viewer?page=' + (page + 1);
+      window.location.href = page_url;
+    }
+
+    function on_click_back() {
+      debugger;
+      if (isNaN(page)) {
+        page = 1;
+      }
+      let page_url = '/node_viewer?page=' + (page - 1);
+      window.location.href = page_url;
+    }
+  </script>
+
 </body>
+
 </html>

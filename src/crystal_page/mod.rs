@@ -3,9 +3,9 @@ use std::collections::HashMap;
 
 #[derive(Default, Debug)]
 pub struct CrystalPage{
-    page: i32,
-    node_count: i32,
-    nodes: Vec<NodeFragment> 
+    pub page: i32,
+    pub node_count: usize,
+    pub nodes: Vec<NodeFragment> 
 }
 
 
@@ -43,6 +43,7 @@ impl CrystalPage{
         for pnode in sorted_pnodes {
             let mut crystal_page = CrystalPage::default();
             crystal_page.page = pnode.0;
+            crystal_page.node_count = pnode.1.len();
             crystal_page.nodes = pnode.1;
             crystal_pages.push(crystal_page);
         }
@@ -79,7 +80,6 @@ fn test_convert(){
 
 }
 // cr_faat01010000
-
 // 01010000
 // 01020000
 // 01030000

@@ -22,5 +22,25 @@
        </form>
     </div>
   </div>
+  <script>
+    htmx.on("htmx:confirm", (e) => {
+      console.log("Before check file");
+      var file_input = document.getElementById('filewpd');
+      // Check if file has input
+      if (!file_input.value){
+        alert("No file selected!");
+        //prevent event to go further with issuing a request
+        e.preventDefault()
+        return;
+      }
+
+      console.log("After check file");
+    });
+
+    htmx.on("htmx:afterRequest", (e) => {
+      console.log("After Request Location Href");
+      window.location.href = "/node_viewer";
+    })
+  </script>
 </body>
 </html>

@@ -13,10 +13,7 @@ pub struct NodeViewer {
     pub nodes: Vec<NodeFragment>,
 }
 
-#[derive(Template, Debug)]
-#[template(path = "node.html")]
-
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct NodeFragment {
     pub char: String,
     pub name: String,
