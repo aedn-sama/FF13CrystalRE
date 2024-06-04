@@ -9,7 +9,18 @@
 </head>
 
 <body class="bg-gray-900">
+  <div id="node-viewer">
   <div class="flex justify-center flex-col">
+    <div class="flex justify-center flex-row py-5">
+      <button
+        class="arrow left bg-transparent hover:bg-blue-500 font-semibold border-blue-500 hover:border-transparent rounded text-white"
+        id="btn_prev" hx-get="/node_viewer?page={{prev_page}}" hx-target="#node-viewer" hx-swap="outerHTML" hx-push-url="true">
+      </button>
+      <button
+        class="arrow right bg-transparent hover:bg-blue-500 font-semibold border-blue-500 hover:border-transparent rounded text-white"
+        id="btn_next" hx-get="/node_viewer?page={{next_page}}" hx-target="#node-viewer" hx-swap="outerHTML" hx-push-url="true">
+      </button>
+    </div>
     <table class="bg-blue-500 px-4 py-2 text-white">
       <thead>
         <tr>
@@ -31,42 +42,7 @@
       </tbody>
     </table>
   </div>
-  <div class="flex justify-center flex-row py-5">
-    <button
-      class="arrow left bg-transparent hover:bg-blue-500 font-semibold border-blue-500 hover:border-transparent rounded text-white"
-      id="btn_back" hx-on:click="on_click_back()">
-    </button>
-    <button
-      class="arrow right bg-transparent hover:bg-blue-500 font-semibold border-blue-500 hover:border-transparent rounded text-white"
-      id="btn_next" hx-on:click="on_click_next()"> 
-      <!-- ToDo: Man könnte hx-get="/node_viewer?page={{page}}" machen mit Rust HTMX -->
-  </button>
+
   </div>
-  <script>
-    const querystring = window.location.search;
-    const params = new URLSearchParams(querystring);
-
-    var page = parseInt(params.get('page'));
-
-    function on_click_next() {
-      debugger;
-      if (isNaN(page)) {
-        page = 1;
-      }
-      let page_url = '/node_viewer?page=' + (page + 1);
-      window.location.href = page_url;
-    }
-
-    function on_click_back() {
-      debugger;
-      if (isNaN(page)) {
-        page = 1;
-      }
-      let page_url = '/node_viewer?page=' + (page - 1);
-      window.location.href = page_url;
-    }
-  </script>
-
 </body>
-
 </html>

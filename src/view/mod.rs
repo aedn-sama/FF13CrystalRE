@@ -10,6 +10,9 @@ pub struct Index;
 #[derive(Template)]
 #[template(path = "node_edit.html")]
 pub struct NodeViewer {
+    pub current_page: i32,
+    pub next_page: i32,
+    pub prev_page: i32,
     pub nodes: Vec<NodeFragment>,
 }
 
