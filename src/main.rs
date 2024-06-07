@@ -10,13 +10,10 @@ use view::{ConvertVecNode, CrystalData, Index, NodeFragment, NodeViewer, UploadF
 use actix_files::Files;
 use actix_multipart::form::MultipartForm;
 use actix_web::{
-    http::{
+    body::BoxBody, http::{
         header::{self, HeaderValue},
         StatusCode,
-    },
-    middleware,
-    web::{self, resource, Data},
-    App, HttpRequest, HttpResponse, HttpServer, Responder, Result,
+    }, middleware, web::{self, resource, Data}, App, HttpRequest, HttpResponse, HttpServer, Responder, Result
 };
 use actix_web_lab::respond::Html;
 
@@ -70,7 +67,7 @@ async fn node_viewer(
     //If node found, then display, else give bad response.
     match paged_node {
         Some(paged_node) => {
-            let response = HttpResponse::new(StatusCode::FOUND).set_body(
+            let response = HttpResponse::new(StatusCode::OK).set_body(
                 NodeViewer {
                     current_page: paged_node.page,
                     prev_page: (paged_node.page - 1).abs(),
@@ -128,8 +125,19 @@ async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result
     //Parse crystal data
     crystal_data.crystal_data = read_crystal_wdb(data).unwrap().clone();
 
+    let mut response = HttpResponse::with_body(
+        StatusCode::SEE_OTHER,
+        BoxBody::new("No Nodes from file".to_string()),
+    );
+    let headers = &mut response.head_mut().headers;
+    headers.append(header::LOCATION, HeaderValue::from_str("/node_viewer").unwrap());
+    Ok(HttpResponse::SeeOther()
+        .insert_header((header::LOCATION, "/node_viewer"))
+        .finish())
+    // Ok(response)
+
     // Ok(Redirect::to("/node_viewer").see_other())
-    Ok(HttpResponse::Ok().finish())
+    // Ok(HttpResponse::with_body(StatusCode::OK, "".to_string()))
 }
 
 #[actix_web::main]

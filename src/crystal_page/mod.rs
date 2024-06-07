@@ -48,14 +48,6 @@ impl CrystalPage{
             crystal_pages.push(crystal_page);
         }
         
-        //Not in sorted order, that should be the hashing
-        // for pnode_fragments in hm_pnode_fragments {
-        //     let mut crystal_page = CrystalPage::default();
-        //     crystal_page.page = pnode_fragments.0;
-        //     crystal_page.nodes = pnode_fragments.1;
-        //     crystal_pages.push(crystal_page);
-        // }
-
         crystal_pages
     }
 }
