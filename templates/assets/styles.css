@@ -15,6 +15,33 @@
     text-align: center;
     vertical-align: middle;
   }
+  img.orb {
+    width: 50px;
+    height: 50px;
+  }
+
+  .node-list {
+    margin: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 2rem;
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+  
+  .node {
+    color: white;
+    border-radius: 1rem;
+    width: 100px;
+    height: 100px;
+    background-color: #ccc4ff30;
+    margin: 0.5rem;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
 
   .arrow {
     border: solid white;

@@ -16,7 +16,7 @@ use actix_web_lab::respond::Html;
 
 use askama::Template;
 
-use std::{ io::Read, ops::{Deref, DerefMut}, sync::{Arc, Mutex, MutexGuard}, vec::Vec};
+use std::{ io::Read, sync::{Arc, Mutex}, vec::Vec};
 
 use lazy_static::lazy_static;
 
@@ -34,10 +34,9 @@ async fn node_viewer(
     //first check if static variable has data, if not, get from mutex.
     let mut guard_pages = VIEWER_PAGES.lock().unwrap();
     let mut paged_nodes: Vec<CrystalPage> = guard_pages.as_ref().clone();
-    let mut nodes: Vec<NodeFragment> = Vec::default();
-
+    
     if paged_nodes.is_empty(){
-        nodes = data.lock().unwrap().crystal_data.nodes.clone().convert();
+        let mut nodes: Vec<NodeFragment> = data.lock().unwrap().crystal_data.nodes.clone().convert();
 
         if nodes.is_empty() {
             return Ok(HttpResponse::PermanentRedirect().append_header((header::LOCATION,"/")).finish());
@@ -132,7 +131,7 @@ async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result
     crystal_data.crystal_data = read_crystal_wdb(data).unwrap().clone();
 
     Ok(HttpResponse::SeeOther()
-        .insert_header((header::LOCATION, "/node_viewer"))
+        .insert_header(("HX-Location", "/node_viewer?page=1"))
         .finish())
 }
 

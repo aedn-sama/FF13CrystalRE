@@ -55,11 +55,11 @@ impl CrystalPage{
 #[test]
 fn test_convert(){
     let node_fragments = [
-        NodeFragment{name: "cr_faat01010000".to_string(),char: "Fang".to_string(),cost: 5, r#type:"ATB".to_string()},
-        NodeFragment{name: "cr_faat02010000".to_string(),char: "Aang".to_string(),cost: 5, r#type:"ATB".to_string()},
-        NodeFragment{name: "cr_faat02010000".to_string(),char: "Bang".to_string(),cost: 5, r#type:"ATB".to_string()},
-        NodeFragment{name: "cr_faat02010000".to_string(),char: "Cang".to_string(),cost: 5, r#type:"ATB".to_string()},
-        NodeFragment{name: "cr_faat03010000".to_string(),char: "Roku".to_string(),cost: 5, r#type:"ATB".to_string()},
+        NodeFragment{name: "cr_faat01010000".to_string(),char: "Fang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
+        NodeFragment{name: "cr_faat02010000".to_string(),char: "Aang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
+        NodeFragment{name: "cr_faat02010000".to_string(),char: "Bang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
+        NodeFragment{name: "cr_faat02010000".to_string(),char: "Cang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
+        NodeFragment{name: "cr_faat03010000".to_string(),char: "Roku".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
     ];
 
     let mut node_fragments :Vec<NodeFragment> = node_fragments.to_vec();

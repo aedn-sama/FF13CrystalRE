@@ -21,7 +21,7 @@ pub struct NodeFragment {
     pub char: String,
     pub name: String,
     pub cost: i32,
-    pub r#type: String,
+    pub image: String,
 }
 
 #[derive(Debug, MultipartForm)]
@@ -51,7 +51,7 @@ impl From<Node> for NodeFragment {
             char: value.char_name,
             name: value.node_name,
             cost: value.cp_cost,
-            r#type: value.node_type.to_string(),
+            image: value.node_type.to_imagesrc().to_string()
         }
     }
 }

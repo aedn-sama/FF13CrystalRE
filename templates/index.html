@@ -13,30 +13,38 @@
     <div class="text-center">
       <p class="text-white text-xl">Final Fantasy XIII Crystal: RE</p>
       <br>
-      <form id="form" hx-encoding="multipart/form-data" hx-post="/upload" hx-target="#fullscreen" hx-swap="outerHTML">
-        <label class="bg-transparent hover:bg-red-500 font-semibold py-2 px-4 border border-red-500 hover:border-transparent rounded text-white" for="filewpd">Select WPD File</label>
-        <input id="filewpd" type="file" name="file"/>
-        <button class="bg-transparent hover:bg-blue-500 font-semibold py-2 px-4 border border-blue-500 hover:border-transparent rounded text-white">
-            Upload
+      <form id="form" hx-encoding="multipart/form-data" hx-post="/upload" hx-target="#fullscreen" hx-swap="outerHTML" hx-on:submit="check_file()">
+        <label
+          class="bg-transparent hover:bg-red-500 font-semibold py-2 px-4 border border-red-500 hover:border-transparent rounded text-white"
+          for="filewpd">Select WPD File</label>
+        <input id="filewpd" type="file" name="file" />
+        <button
+          class="bg-transparent hover:bg-blue-500 font-semibold py-2 px-4 border border-blue-500 hover:border-transparent rounded text-white">
+          Upload
         </button>
-       </form>
+      </form>
     </div>
-  </div>
-  <script>
-    htmx.on("htmx:confirm", (e) => {
-      console.log("Before check file");
-      var file_input = document.getElementById('filewpd');
-      
-      // Check if file has input
-      if (!file_input.value){
-        alert("No file selected!");
-        //prevent event to go further with issuing a request
-        e.preventDefault()
-        return;
-      }
+    <script>
+      function check_file(){
+      // htmx.on("htmx:confirm", (e) => {
+        console.log("Before check file");
+        var file_input = document.getElementById('filewpd');
 
-      console.log("After check file");
-    });
-  </script>
+        if (!file_input) { return; }
+
+        // Check if file has input
+        if (!file_input.value) {
+          alert("No file selected!");
+          //prevent event to go further with issuing a request
+          // e.preventDefault() //not needed outside of htmx.on
+          return;
+        }
+
+        console.log("After check file");
+      }
+      // });
+    </script>
+  </div>
 </body>
+
 </html>

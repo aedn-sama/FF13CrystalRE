@@ -228,6 +228,21 @@ impl fmt::Display for NodeType {
 
 }
 
+impl NodeType{
+    pub fn to_imagesrc(&self) -> &str{
+        match self {
+            NodeType::HP => "assets/Green Orb.png",
+            NodeType::STR => "assets/Red Orb.png",
+            NodeType::MAG => "assets/Purple Orb.png",
+            NodeType::ACCESSORY => "assets/Orange Orb.png",
+            NodeType::ATB => "assets/White Crystal.png",
+            NodeType::ABILITY => "assets/Yellow Orb.png",
+            NodeType::ROLE => "assets/White Crystal.png",
+            NodeType::INVALID => "",
+        }
+    }
+}
+
 impl Node {
     pub fn new(
         char_name: String,
