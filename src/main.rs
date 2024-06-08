@@ -10,16 +10,20 @@ use view::{ConvertVecNode, CrystalData, Index, NodeFragment, NodeViewer, UploadF
 use actix_files::Files;
 use actix_multipart::form::MultipartForm;
 use actix_web::{
-    body::BoxBody, http::{
-        header::{self, HeaderValue},
-        StatusCode,
-    }, middleware, web::{self, resource, Data}, App, HttpRequest, HttpResponse, HttpServer, Responder, Result
+    http::header, middleware, web::{self, resource, Data}, App, HttpRequest, HttpResponse, HttpServer, Responder, Result
 };
 use actix_web_lab::respond::Html;
 
 use askama::Template;
 
-use std::{ io::Read, sync::Mutex, vec::Vec};
+use std::{ io::Read, ops::{Deref, DerefMut}, sync::{Arc, Mutex, MutexGuard}, vec::Vec};
+
+use lazy_static::lazy_static;
+
+// Define a static variable using lazy_static
+lazy_static! {
+    static ref VIEWER_PAGES: Mutex<Arc<Vec<CrystalPage>>> = Mutex::new(Arc::new(Vec::<CrystalPage>::new()));
+}
 
 async fn node_viewer(
     req: HttpRequest,
@@ -27,21 +31,22 @@ async fn node_viewer(
 ) -> Result<impl Responder> {
     log::info!("got Node Viewer");
 
-    //get and convert crystal data from mutex
-    let mut nodes: Vec<NodeFragment> = data.lock().unwrap().crystal_data.nodes.clone().convert();
+    //first check if static variable has data, if not, get from mutex.
+    let mut guard_pages = VIEWER_PAGES.lock().unwrap();
+    let mut paged_nodes: Vec<CrystalPage> = guard_pages.as_ref().clone();
+    let mut nodes: Vec<NodeFragment> = Vec::default();
 
-    if nodes.is_empty() {
-        let mut response = HttpResponse::with_body(
-            StatusCode::PERMANENT_REDIRECT,
-            "No Nodes from file".to_string(),
-        );
-        let headers = &mut response.head_mut().headers;
-        headers.append(header::LOCATION, HeaderValue::from_str("/").unwrap());
-        return Ok(response);
+    if paged_nodes.is_empty(){
+        nodes = data.lock().unwrap().crystal_data.nodes.clone().convert();
+
+        if nodes.is_empty() {
+            return Ok(HttpResponse::PermanentRedirect().append_header((header::LOCATION,"/")).finish());
+        }
+
+        *guard_pages = Arc::new(CrystalPage::convert(&mut nodes).clone());
+        paged_nodes = guard_pages.to_owned().to_vec();
     }
-
-    let paged_nodes = CrystalPage::convert(&mut nodes);
-
+    
     //extract query data - page
     let query = req
         .query_string()
@@ -52,7 +57,9 @@ async fn node_viewer(
         .to_string();
 
 
-    let fn_bounds_page = |page:i32, max_page: i32| if page > max_page { max_page } else { page };
+    // Can be simplified with clamp
+    // let fn_next_page = |page:i32, max_page: i32| if page > max_page { max_page } else { page };
+    // let fn_prev_page = |page:i32| if page < 1 { 1 } else { page };
     let page = query.parse::<i32>().unwrap_or(1); //page=i32
     
     let max_page = paged_nodes.iter()
@@ -60,33 +67,32 @@ async fn node_viewer(
         .unwrap()
         .page;
 
+    //Set and check next page. If page would be 10, then next_page would be 11 without this bounds_check
+    let next_page = (page + 1).clamp(1, max_page);
+    let prev_page = (page - 1).clamp(1, max_page);
+
     let paged_node = paged_nodes
         .iter()
-        .find(|r| r.page == fn_bounds_page(page, max_page));
+        .find(|r| r.page == page.clamp(1, max_page));
     
     //If node found, then display, else give bad response.
     match paged_node {
         Some(paged_node) => {
-            let response = HttpResponse::new(StatusCode::OK).set_body(
+            let response = HttpResponse::Ok().body(
                 NodeViewer {
                     current_page: paged_node.page,
-                    prev_page: (paged_node.page - 1).abs(),
-                    next_page: (paged_node.page + 1),
+                    prev_page: prev_page,
+                    next_page: next_page,
                     nodes: paged_node.nodes.clone(),
                 }
                 .render()
                 .unwrap(),
-            );
+            ).into();
 
-            // let headers = response.borrow_mut().headers_mut();
-            // headers.append(LOCATION, HeaderValue::from_str(link).unwrap());
             return Ok(response);
         }
         None => {
-            return Ok(HttpResponse::with_body(
-                StatusCode::OK,
-                "No more nodes".to_string(),
-            ));
+            return Ok(HttpResponse::Ok().finish());
         }
     }
 }
@@ -125,19 +131,9 @@ async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result
     //Parse crystal data
     crystal_data.crystal_data = read_crystal_wdb(data).unwrap().clone();
 
-    let mut response = HttpResponse::with_body(
-        StatusCode::SEE_OTHER,
-        BoxBody::new("No Nodes from file".to_string()),
-    );
-    let headers = &mut response.head_mut().headers;
-    headers.append(header::LOCATION, HeaderValue::from_str("/node_viewer").unwrap());
     Ok(HttpResponse::SeeOther()
         .insert_header((header::LOCATION, "/node_viewer"))
         .finish())
-    // Ok(response)
-
-    // Ok(Redirect::to("/node_viewer").see_other())
-    // Ok(HttpResponse::with_body(StatusCode::OK, "".to_string()))
 }
 
 #[actix_web::main]

@@ -1,7 +1,7 @@
 use crate::view::NodeFragment;
 use std::collections::HashMap;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct CrystalPage{
     pub page: i32,
     pub node_count: usize,
@@ -16,7 +16,7 @@ impl CrystalPage{
 
         for node in node_fragments {
             //get crystal name level as page
-            let page = node.name[8..9].parse::<i32>().unwrap();
+            let page = node.name[7..9].parse::<i32>().unwrap();
             let mut nodes = Vec::<NodeFragment>::new();
             
             //do we already have entries with the specific page?
