@@ -12,7 +12,7 @@ cargo b && cargo r
 
 ## Released executable
 Just unzip it and execute.
-The template folder must be in same directory as executable for html files.
+The template folder must be in same directory as the executable for html files.
 
 # What does this project?
 1. Reading a crystal_*.wdb file.
