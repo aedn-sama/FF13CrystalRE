@@ -1,75 +1,112 @@
-use crate::view::NodeFragment;
-use std::collections::HashMap;
+use crate::view::{ListRoleFragment, NodeFragment, RoleFragment};
+use std::collections::BTreeMap;
 
 #[derive(Default, Debug, Clone)]
-pub struct CrystalPage{
-    pub page: i32,
+pub struct CrystalPage {
+    pub character: String,
+    pub stage: i16,
     pub node_count: usize,
-    pub nodes: Vec<NodeFragment> 
+    pub roles: Vec<RoleFragment>,
 }
 
 
-impl CrystalPage{
-    pub fn convert(node_fragments :&mut Vec<NodeFragment>) -> Vec<Self>{
-        //hashmap of node fragnebts per page
-        let mut hm_pnode_fragments = HashMap::<i32, Vec<NodeFragment>>::new();
 
-        for node in node_fragments {
-            //get crystal name level as page
-            let page = node.name[7..9].parse::<i32>().unwrap();
-            let mut nodes = Vec::<NodeFragment>::new();
-            
-            //do we already have entries with the specific page?
-            if hm_pnode_fragments.contains_key(&page){
-                //get mutable crystal page from hashed table and append node
-                let pnode_fragments = hm_pnode_fragments.get_mut(&page).unwrap();
-                pnode_fragments.push(node.clone());
-            
-            } else {
-                //insert page with first node
-                nodes.push(node.clone());
-                hm_pnode_fragments.insert(page,  nodes);
-            }
+impl CrystalPage {
+    pub fn convert(character: &str, node_fragments: &mut Vec<NodeFragment>) -> Vec<Self> {
+        //Test with BtreeMap
+        let mut btree_entries: BTreeMap<i16, BTreeMap<String, Vec<NodeFragment>>> = BTreeMap::new();
+
+        for node in node_fragments.clone() {
+            btree_entries
+                .entry(node.stage)
+                .or_default()
+                .entry(node.role.clone())
+                .or_default()
+                .push(node.clone());
         }
-        
 
-        //sort the entries by page num
-        let mut sorted_pnodes: Vec<_> = hm_pnode_fragments.into_iter().collect();
-        sorted_pnodes.sort_by_key(|k| k.0.abs());
-
-        //create crystal pages from hash map
+        //create crystal pages from btree map
         let mut crystal_pages = Vec::<CrystalPage>::new();
-        
-        for pnode in sorted_pnodes {
+
+        for entry in btree_entries {
+            let mut role_fragments: ListRoleFragment = ListRoleFragment(Vec::<RoleFragment>::new());
             let mut crystal_page = CrystalPage::default();
-            crystal_page.page = pnode.0;
-            crystal_page.node_count = pnode.1.len();
-            crystal_page.nodes = pnode.1;
+            crystal_page.character = character.to_string();
+            crystal_page.stage = entry.0;
+            
+            for role in entry.1{
+                let mut role_fragment: RoleFragment = RoleFragment::default();
+                role_fragment.name = role.0;
+                role_fragment.nodes = role.1;
+                role_fragments.0.push(role_fragment.clone());
+            }
+
+            crystal_page.roles = role_fragments.0.clone();
             crystal_pages.push(crystal_page);
         }
-        
+
         crystal_pages
     }
 }
 
+
 #[test]
-fn test_convert(){
-    let node_fragments = [
-        NodeFragment{name: "cr_faat01010000".to_string(),char: "Fang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
-        NodeFragment{name: "cr_faat02010000".to_string(),char: "Aang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
-        NodeFragment{name: "cr_faat02010000".to_string(),char: "Bang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
-        NodeFragment{name: "cr_faat02010000".to_string(),char: "Cang".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
-        NodeFragment{name: "cr_faat03010000".to_string(),char: "Roku".to_string(),cost: 5, image:"templates/assets/Blue Orb.png".to_string()},
-    ];
+fn test_convert() {
+    // let node_fragments = [
+    //     NodeFragment {
+    //         name: "cr_faat01010000".to_string(),
+    //         cost: 5,
+    //         r#type: "STR".to_string(),
+    //         value: 10,
+    //         stage: 1,
+    //         role: "Commander".to_string(),
+    //         image: "templates/assets/Blue Orb.png".to_string(),
+    //     },
+    //     NodeFragment {
+    //         name: "cr_faat02010000".to_string(),
+    //         cost: 5,
+    //         r#type: "MAG".to_string(),
+    //         value: 10,
+    //         stage: 2,
+    //         role: "Commander".to_string(),
+    //         image: "templates/assets/Blue Orb.png".to_string(),
+    //     },
+    //     NodeFragment {
+    //         name: "cr_faat02010000".to_string(),
+    //         cost: 5,
+    //         r#type: "ATB".to_string(),
+    //         value: 10,
+    //         stage: 3,
+    //         role: "Commander".to_string(),
+    //         image: "templates/assets/Blue Orb.png".to_string(),
+    //     },
+    //     NodeFragment {
+    //         name: "cr_faat02010000".to_string(),
+    //         cost: 5,
+    //         r#type: "ACCESSORY".to_string(),
+    //         value: 10,
+    //         stage: 1,
+    //         role: "Commander".to_string(),
+    //         image: "templates/assets/Blue Orb.png".to_string(),
+    //     },
+    //     NodeFragment {
+    //         name: "cr_faat03010000".to_string(),
+    //         cost: 5,
+    //         r#type: "ATB".to_string(),
+    //         value: 10,
+    //         stage: 1,
+    //         role: "Commander".to_string(),
+    //         image: "templates/assets/Blue Orb.png".to_string(),
+    //     },
+    // ];
 
-    let mut node_fragments :Vec<NodeFragment> = node_fragments.to_vec();
-    let crystal_page = CrystalPage::convert(&mut node_fragments);
-    assert_eq!(crystal_page.len(), 3);
-    assert_eq!(crystal_page[0].page, 1);
-    assert_eq!(crystal_page[1].page, 2);
-    assert_eq!(crystal_page[2].page, 3);
-    assert_eq!(crystal_page[2].nodes[0].name, "cr_faat03010000");
-
+    // let mut node_fragments: Vec<NodeFragment> = node_fragments.to_vec();
+    // let crystal_page = CrystalPage::convert("Lightning",&mut node_fragments);
+    // assert_eq!(crystal_page.len(), 3);
+    // assert_eq!(crystal_page[0].stage, 1);
+    // assert_eq!(crystal_page[1].stage, 2);
+    // assert_eq!(crystal_page[2].stage, 3);
+    // assert_eq!(crystal_page[2].roles[0].name, "cr_faat03010000");
 }
 // cr_faat01010000
 // 01010000

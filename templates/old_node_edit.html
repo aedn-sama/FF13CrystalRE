@@ -10,8 +10,8 @@
 
 <body class="bg-gray-900">
   <div id="node-viewer">
-    <div class="flex justify-center flex-col">
-      <div class="flex justify-center flex-row py-5">
+    <div class="flex justify-center flex-col h-max">
+      <div class="flex justify-center flex-row pt-10 pb-4">
         <button
           class="arrow left bg-transparent hover:bg-blue-500 font-semibold border-blue-500 hover:border-transparent rounded text-white"
           id="btn_prev" hx-get="/node_viewer?page={{prev_page}}" hx-target="#node-viewer" hx-swap="outerHTML"
@@ -23,99 +23,121 @@
           hx-push-url="true">
         </button>
       </div>
-      <table class="bg-blue-500 px-4 py-2 text-white">
-        <thead>
-          <tr>
-            <th>Character</th>
-            <th>Name</th>
-            <th>Cost</th>
-            <th>Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for node in nodes %}
-          <tr>
-            <td>{{ node.char }}</td>
-            <td>{{ node.name }}</td>
-            <td>{{ node.cost }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="node-list">
-      {% for node in nodes %}
-      <div class="node">
-        
-        <img class="orb" src="{{ node.image }}">
-        <p>Cost: {{ node.cost }}</p>
+      <div class="character">
+        <p>Lightning</p>
       </div>
-      {% endfor %}
-      <!-- <div class="node">
-        <p>2</p>
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
+
+      <div class="node-list">
+        <div class="node-role">
+        <p class="commando">Commando</p>
+        <div class="nodes">
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 STR</p>
+            <img class="orb" src="/templates/assets/Red Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+        </div>
       </div>
-      <div class="node">
-        <p>3</p>
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
+      <div class="node-role">
+        <p class="medic">Medic</p>
+        <div class="nodes">
+          <div class="node">
+            <p>+ 5 HP</p>
+            <img class="orb" src="/templates/assets/Green Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <img class="orb" src="/templates/assets/Yellow Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+        </div>
       </div>
-      <div class="node">
-        <p>4</p>
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
+      <div class="node-role">
+        <p class="savager">Savager</p>
+        <div class="nodes">
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+        </div>
+        </div>
+        <div class="node-role">
+        <p class="synergist">Synergist</p>
+        <div class="nodes">
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 STR</p>
+            <img class="orb" src="/templates/assets/Red Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+        </div>
+        </div>
+        <div class="node-role">
+        <p class="saboteur">Saboteur</p>
+        <div class="nodes">
+          <div class="node">
+            <p>+ 5 MAG</p>
+            <img class="orb" src="/templates/assets/Blue Orb.png">
+            <p>Cost: 500</p>
+          </div>
+          <div class="node">
+            <p>+ 5 STR</p>
+            <img class="orb" src="/templates/assets/Red Orb.png">
+            <p>Cost: 500</p>
+          </div>
+        </div>
       </div>
-      <div class="node">
-        <p>5</p>
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
       </div>
-      <div class="node">
-        <p>6</p>
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div>
-      <div class="node">
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div>
-      <div class="node">
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div>
-      <div class="node">
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div>
-      <div class="node">
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div>
-      <div class="node">
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div>
-      <div class="node">
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div>
-      <div class="node">
-        <img class="orb" src="/templates/assets/Blue Orb.png">
-        <p>Cost: 500</p>
-        <p>Type: MAG</p>
-      </div> -->
     </div>
   </div>
 </body>

@@ -2,7 +2,7 @@ pub mod crystal;
 pub mod crystal_page;
 pub mod view;
 
-use crystal::read_crystal_wdb;
+use crystal::{read_crystal_wdb, Crystarium};
 use crystal_page::CrystalPage;
 // use log::info;
 use view::{ConvertVecNode, CrystalData, Index, NodeFragment, NodeViewer, UploadForm};
@@ -10,19 +10,20 @@ use view::{ConvertVecNode, CrystalData, Index, NodeFragment, NodeViewer, UploadF
 use actix_files::Files;
 use actix_multipart::form::MultipartForm;
 use actix_web::{
-    http::header, middleware, web::{self, resource, Data}, App, HttpRequest, HttpResponse, HttpServer, Responder, Result
+    guard, http::header, middleware, web::{self, resource, Data}, App, HttpRequest, HttpResponse, HttpServer, Responder, Result
 };
-use actix_web_lab::respond::Html;
-
 use askama::Template;
 
-use std::{ io::Read, sync::{Arc, Mutex}, vec::Vec};
+use std::{
+    io::Read, ops::Deref, sync::{Arc, Mutex}, vec::Vec
+};
 
 use lazy_static::lazy_static;
 
 // Define a static variable using lazy_static
 lazy_static! {
-    static ref VIEWER_PAGES: Mutex<Arc<Vec<CrystalPage>>> = Mutex::new(Arc::new(Vec::<CrystalPage>::new()));
+    static ref VIEWER_PAGES: Mutex<Arc<Vec<CrystalPage>>> =
+        Mutex::new(Arc::new(Vec::<CrystalPage>::new()));
 }
 
 async fn node_viewer(
@@ -34,18 +35,26 @@ async fn node_viewer(
     //first check if static variable has data, if not, get from mutex.
     let mut guard_pages = VIEWER_PAGES.lock().unwrap();
     let mut paged_nodes: Vec<CrystalPage> = guard_pages.as_ref().clone();
-    
-    if paged_nodes.is_empty(){
-        let mut nodes: Vec<NodeFragment> = data.lock().unwrap().crystal_data.nodes.clone().convert();
+
+    if paged_nodes.is_empty() {
+        let guard_crystal_data = data.lock().unwrap();
+        let mut nodes: Vec<NodeFragment> = guard_crystal_data.crystal_data.nodes.clone().convert();
 
         if nodes.is_empty() {
-            return Ok(HttpResponse::PermanentRedirect().append_header((header::LOCATION,"/")).finish());
+            return Ok(HttpResponse::PermanentRedirect()
+                .append_header(("Location", "/"))
+                .insert_header((header::CACHE_CONTROL, "no-store, no-cache, must-revalidate"))
+                .insert_header((header::PRAGMA, "no-cache"))
+                .insert_header((header::EXPIRES, "0"))
+                .finish());
         }
 
-        *guard_pages = Arc::new(CrystalPage::convert(&mut nodes).clone());
+        *guard_pages = Arc::new(
+            CrystalPage::convert(&guard_crystal_data.crystal_data.character, &mut nodes).clone(),
+        );
         paged_nodes = guard_pages.to_owned().to_vec();
     }
-    
+
     //extract query data - page
     let query = req
         .query_string()
@@ -55,16 +64,9 @@ async fn node_viewer(
         .unwrap()
         .to_string();
 
+    let page = query.parse::<i16>().unwrap_or(1); //page=i32
 
-    // Can be simplified with clamp
-    // let fn_next_page = |page:i32, max_page: i32| if page > max_page { max_page } else { page };
-    // let fn_prev_page = |page:i32| if page < 1 { 1 } else { page };
-    let page = query.parse::<i32>().unwrap_or(1); //page=i32
-    
-    let max_page = paged_nodes.iter()
-        .max_by_key(|f| f.page)
-        .unwrap()
-        .page;
+    let max_page = paged_nodes.iter().max_by_key(|f| f.stage).unwrap().stage;
 
     //Set and check next page. If page would be 10, then next_page would be 11 without this bounds_check
     let next_page = (page + 1).clamp(1, max_page);
@@ -72,21 +74,27 @@ async fn node_viewer(
 
     let paged_node = paged_nodes
         .iter()
-        .find(|r| r.page == page.clamp(1, max_page));
-    
+        .find(|r| r.stage == page.clamp(1, max_page));
+
     //If node found, then display, else give bad response.
     match paged_node {
         Some(paged_node) => {
-            let response = HttpResponse::Ok().body(
-                NodeViewer {
-                    current_page: paged_node.page,
-                    prev_page: prev_page,
-                    next_page: next_page,
-                    nodes: paged_node.nodes.clone(),
-                }
-                .render()
-                .unwrap(),
-            ).into();
+            let response = HttpResponse::Ok()
+                .insert_header((header::CACHE_CONTROL, "no-store, no-cache, must-revalidate"))
+                .insert_header((header::PRAGMA, "no-cache"))
+                .insert_header((header::EXPIRES, "0"))
+                .body(
+                    NodeViewer {
+                        character: paged_node.character.clone(),
+                        current_page: paged_node.stage,
+                        prev_page: prev_page,
+                        next_page: next_page,
+                        roles: paged_node.roles.clone(),
+                    }
+                    .render()
+                    .unwrap(),
+                )
+                .into();
 
             return Ok(response);
         }
@@ -98,8 +106,9 @@ async fn node_viewer(
 
 async fn index(_req: HttpRequest) -> Result<impl Responder> {
     log::info!("got Index");
-
-    Ok(Html(Index.render().unwrap()))
+    Ok(Into::<HttpResponse>::into(
+        HttpResponse::Ok().body(Index.render().unwrap()),
+    ))
 }
 
 async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result<impl Responder> {
@@ -108,6 +117,12 @@ async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result
     //Mutex lock and crystal data prepare for file write
     let mg_crystal_data = req.app_data::<Data<Mutex<CrystalData>>>().unwrap(); //data.lock().unwrap().crystal_data.to_owned();
     let mut crystal_data = mg_crystal_data.lock().unwrap();
+    
+    //Initialize data at upload
+    crystal_data.crystal_data = Crystarium::default();
+    let mut guard_pages = VIEWER_PAGES.lock().unwrap();
+    let pages_arc = Arc::make_mut(&mut *guard_pages); // Arc mutably dereferenzieren
+    pages_arc.clear(); // Den Vektor leeren
 
     //Get first uploaded file.
     let f = form.files.first_mut();
@@ -129,9 +144,11 @@ async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result
 
     //Parse crystal data
     crystal_data.crystal_data = read_crystal_wdb(data).unwrap().clone();
+    // let dbg_file = File::create("debug_contents.txt");
+    // dbg_file.unwrap().write_all(format!("{:?}",crystal_data.crystal_data.clone().nodes).as_bytes());
 
-    Ok(HttpResponse::SeeOther()
-        .insert_header(("HX-Location", "/node_viewer?page=1"))
+    Ok(HttpResponse::Ok()
+        .insert_header(("HX-Redirect", "/node_viewer?page=1"))
         .finish())
 }
 

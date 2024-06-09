@@ -23,11 +23,25 @@
           hx-push-url="true">
         </button>
       </div>
+      <div class="character stage">
+        <p>{{character}} - Stage: {{current_page}}</p>
+      </div>
+
       <div class="node-list">
-        {% for node in nodes %}
-        <div class="node">
-          <img class="orb" src="{{ node.image }}">
-          <p>Cost: {{ node.cost }}</p>
+        {% for role in roles %}
+        <div class="node-role">
+          <p class="{{ role.name|lower }}">{{ role.name }}</p>
+          <div class="nodes">
+          {% for node in role.nodes %}
+            <div id="{{ node.name }}" class="node">
+              {% if node.value > 0 && node.type != "ROLE" && node.type != "ABILITY" && node.type != "ACCESSORY" %}
+              <p>+{{ node.value }} {{ node.type }}</p>
+              {% endif -%}
+              <img class="orb" src="{{ node.image }}">
+              <p>Cost: {{ node.cost }}</p>
+            </div>
+          {% endfor %}
+          </div>
         </div>
         {% endfor %}
       </div>

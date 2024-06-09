@@ -47,9 +47,20 @@ pub enum NodeType {
     INVALID,
 }
 
+#[derive(Debug, Default, Clone, Copy)]
+pub enum NodeRole {
+    #[default]
+    COMMANDO = 1,
+    RAVAGER,
+    SENTINEL,
+    SABOTEUR,
+    SYNERGIST,
+    MEDIC,
+    INVALID,
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct Node {
-    pub char_name: String,
     pub node_name: String,
     pub cp_cost: i32,
     pub ability: String,
@@ -61,6 +72,7 @@ pub struct Node {
 
 #[derive(Default, Debug, Clone)]
 pub struct Crystarium {
+    pub character: String,
     pub nodes: Vec<Node>,
 }
 
@@ -228,6 +240,34 @@ impl fmt::Display for NodeType {
 
 }
 
+impl From<u8> for NodeRole {
+    fn from(value: u8) -> Self {
+        match value {
+            1 => NodeRole::COMMANDO,
+            2 => NodeRole::RAVAGER,
+            3 => NodeRole::SENTINEL,
+            4 => NodeRole::SABOTEUR,
+            5 => NodeRole::SYNERGIST,
+            6 => NodeRole::MEDIC,
+            _ => NodeRole::INVALID,
+        }
+    }
+}
+
+impl fmt::Display for NodeRole {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self{
+            NodeRole::COMMANDO => write!(f, "COMMANDO"),
+            NodeRole::RAVAGER => write!(f, "RAVAGER"),
+            NodeRole::SENTINEL => write!(f, "SENTINEL"),
+            NodeRole::SABOTEUR => write!(f, "SABOTEUR"),
+            NodeRole::SYNERGIST => write!(f, "SYNERGIST"),
+            NodeRole::MEDIC => write!(f, "MEDIC"),
+            NodeRole::INVALID => write!(f, "INVALID"),
+        }
+    }
+}
+
 impl NodeType{
     pub fn to_imagesrc(&self) -> &str{
         match self {
@@ -240,30 +280,6 @@ impl NodeType{
             NodeType::ROLE => "assets/White Crystal.png",
             NodeType::INVALID => "",
         }
-    }
-}
-
-impl Node {
-    pub fn new(
-        char_name: String,
-        node_name: String,
-        cp_cost: i32,
-        ability: String,
-        node_value: i16,
-        node_type: NodeType,
-        stage: u8,
-        role: u8,
-    ) -> Self {
-        return Node {
-            char_name: char_name,
-            node_name: node_name,
-            cp_cost: cp_cost,
-            ability: ability,
-            node_value: node_value,
-            node_type: node_type,
-            stage: stage,
-            role: role,
-        };
     }
 }
 
@@ -314,18 +330,19 @@ impl Crystarium {
             io::copy(&mut reader.by_ref().take(1), &mut buf_stagerole).unwrap();
             let stage = buf_stagerole[0]/16;
             let role = buf_stagerole[0]%16;
- 
-            crystarium.nodes.push(Node::new(
-                char_name.to_string(),
-                entry.name.clone(),
-                cp_cost,
-                "ability".to_string(),
-                node_value,
+            
+            crystarium.character = char_name.to_string();
+
+            crystarium.nodes.push(Node{
+                node_name: entry.name.clone(),
+                cp_cost: cp_cost,
+                ability: "ability".to_string(),
+                node_value: node_value,
                 //ability,
-                node_type,
-                stage,
-                role
-            ));
+                node_type: node_type,
+                stage: stage,
+                role: role
+        });
         }    
 
         crystarium
