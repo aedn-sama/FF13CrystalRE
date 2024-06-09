@@ -14,7 +14,7 @@ cargo b && cargo r
 Just unzip it and execute.
 The template folder must be in same directory as the executable for html files.
 
-# What does this project?
+# What does this project do?
 1. Reading a crystal_*.wdb file.
 2. Converting the binary structure in rust structure.
 3. Displaying the structure with htmx templating
