@@ -1,5 +1,5 @@
 [package]
-name = "OwnCode"
+name = "FF13CrystalRE"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,11 +10,9 @@ actix = "0.13.3"
 actix-files = "0.6.5"
 actix-multipart = "0.6.1"
 actix-web = "4.6.0"
-actix-web-lab = "0.20.2"
 askama = "0.12.1"
 byteorder = {version = "1.5.0" }
 env_logger = "0.11.3"
 lazy_static = "1.4.0"
 log = "0.4.21"
-tera = "1.19.1"
 

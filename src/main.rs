@@ -10,12 +10,12 @@ use view::{ConvertVecNode, CrystalData, Index, NodeFragment, NodeViewer, UploadF
 use actix_files::Files;
 use actix_multipart::form::MultipartForm;
 use actix_web::{
-    guard, http::header, middleware, web::{self, resource, Data}, App, HttpRequest, HttpResponse, HttpServer, Responder, Result
+    http::header, web::{self, resource, Data}, App, HttpRequest, HttpResponse, HttpServer, Responder, Result
 };
 use askama::Template;
 
 use std::{
-    io::Read, ops::Deref, sync::{Arc, Mutex}, vec::Vec
+    io::Read, sync::{Arc, Mutex}, vec::Vec
 };
 
 use lazy_static::lazy_static;
@@ -30,7 +30,7 @@ async fn node_viewer(
     req: HttpRequest,
     data: web::Data<Mutex<CrystalData>>,
 ) -> Result<impl Responder> {
-    log::info!("got Node Viewer");
+    // log::info!("got Node Viewer");
 
     //first check if static variable has data, if not, get from mutex.
     let mut guard_pages = VIEWER_PAGES.lock().unwrap();
@@ -105,14 +105,14 @@ async fn node_viewer(
 }
 
 async fn index(_req: HttpRequest) -> Result<impl Responder> {
-    log::info!("got Index");
+    // log::info!("got Index");
     Ok(Into::<HttpResponse>::into(
         HttpResponse::Ok().body(Index.render().unwrap()),
     ))
 }
 
 async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result<impl Responder> {
-    log::info!("got Upload");
+    // log::info!("got Upload");
 
     //Mutex lock and crystal data prepare for file write
     let mg_crystal_data = req.app_data::<Data<Mutex<CrystalData>>>().unwrap(); //data.lock().unwrap().crystal_data.to_owned();
@@ -134,7 +134,7 @@ async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result
 
     let f = f.unwrap();
 
-    log::info!("Filename {}", f.file_name.as_ref().unwrap());
+    // log::info!("Filename {}", f.file_name.as_ref().unwrap());
 
     //Declare buffer for file's content
     let mut data: Vec<u8> = Vec::new();
@@ -154,15 +154,17 @@ async fn upload(req: HttpRequest, mut form: MultipartForm<UploadForm>) -> Result
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
-    log::info!("starting HTTP server at http://127.0.0.1:8000");
+    // env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    // log::info!("starting HTTP server at http://127.0.0.1:8000");
 
     let crystal_data = web::Data::new(Mutex::new(CrystalData::default()));
 
+    println!("Running on: http://127.0.0.1:8000/");
+    
     HttpServer::new(move || {
         App::new()
             .app_data(crystal_data.clone())
-            .wrap(middleware::Logger::default())
+            // .wrap(middleware::Logger::default())
             .service(resource("/upload").route(web::post().to(upload)))
             .service(resource("/node_viewer").route(web::get().to(node_viewer)))
             .service(resource("/").route(web::get().to(index)))
