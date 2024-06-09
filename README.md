@@ -21,6 +21,7 @@ The template folder must be in same directory as executable for html files.
 
 ## FF13 specifics for the convert.
 ### wdb Node Structure
+```
 // WDB
 //     • int: CP cost
 //     • int: String offset - Ability Id
@@ -37,7 +38,7 @@ The template folder must be in same directory as executable for html files.
 //     • byte % 16: Role
 // Example: 00 00 2E E0, 00 00 01 D9, 00 C3, 01, (91)->0101 1011
 // Thanks to Discord .peklo at Fabula Nova Crystallis Discord Server
-
+```
 
 
 
